@@ -27,14 +27,15 @@ def preprocess_game_data(game_data, inum):
 	# print(np.unique(images[4]))
 
 	images_list = images.tolist()
-	X = list(map(image_to_image_list, [images_list] * (len(images_list) - (inum - 1)), range(0, len(images_list) - (inum - 1)), [inum] * (len(images_list) - (inum - 1))))
-	y = actions[inum - 1:].tolist()
-	return np.array(X), np.expand_dims(y, axis=1)
+	X = list(map(image_to_image_list, [images_list] * (len(images_list) - inum),
+				 range(0, len(images_list) - inum), [inum] * (len(images_list) - inum)))
+	a = actions[inum - 1:-1].tolist()
+	return X, np.expand_dims(a, axis=1)
 
 def image_to_image_list(images, i, out_size):
 	if i > len(images) - out_size:
 		return
-	return images[i: i + out_size]
+	return [np.concatenate(images[i:i + out_size], axis=2), images[i + out_size]]
 
 def preprocess_single_sample(raw):
 	raw = np.array(raw[0]).astype(np.int)
@@ -68,9 +69,8 @@ if __name__ == "__main__":
 	data = load_data()
 	inum = 5
 	X, y = preprocess_game_data(data[0], inum)
-	print(type(X[0,0]))
-	print(X[0, 0].shape)
-	print(X.shape)
+	print(len(X), len(X[0]), X[0][0].shape, X[0][1].shape)
+	print(y.shape)
 
 	# img = Image.fromarray(X[0, 0], 'RGB')
 	# img.show()
